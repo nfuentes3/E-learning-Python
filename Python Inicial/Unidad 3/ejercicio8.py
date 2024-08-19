@@ -8,12 +8,12 @@ total = 0 #Inicializo total de la compra.
 lista = [] #Inicializo lista de compras.
 
 def alta():
-    lista_compra = []
+    lista_compra = [] #Se crea la lista con la compra
     producto = input("Que es lo que quiere llevar?: ")
     kg = float(input("Cuantos kilos quiere?: "))
     precio_unidad = float(input("Cuanto vale por kilo?: "))
     precio_final = kg * precio_unidad
-    lista_compra.append((producto,kg,precio_unidad,precio_final))
+    lista_compra.append((producto,kg,precio_unidad,precio_final)) #De la lista inicializada, se anida otra lista con la compra realizada.
     lista.append(lista_compra)
 
 def consulta():
@@ -23,7 +23,7 @@ def baja():
     compra = int(input("Cual compra desea eliminar? Indique su indice: "))
     del lista[compra]
 
-def modificar():
+def modificar(): #Para la modificacion, se considera directamente eliminar el indice indicado, y crear uno nuevo.
     compra = int(input("Seleccione la compra a modificar: "))
     del lista[compra]
     alta()

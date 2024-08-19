@@ -13,8 +13,8 @@ def alta():
     kg = float(input("Cuantos kilos quiere?: "))
     precio_unidad = float(input("Cuanto vale por kilo?: "))
     precio_final = kg * precio_unidad
-    compras_diccionario = {'producto': producto, 'kilos': kg, 'precio' : precio_unidad,'total' : precio_final}
-    lista.append(compras_diccionario)
+    compras_diccionario = {'producto': producto, 'kilos': kg, 'precio' : precio_unidad,'total' : precio_final} #Se crea el diccionario con claves pre-definidas y los valores son las variables de los ingresos del usuario.
+    lista.append(compras_diccionario) #Se anida el diccionario dentro de la lista.
 
 def consulta():
     print(lista)
@@ -23,9 +23,9 @@ def baja():
     compra = int(input("Cual compra desea eliminar? Indique su indice: "))
     del lista[compra]
 
-def modificar():
+def modificar(): #Para la modificacion, se considera directamente eliminar el indice indicado, y crear uno nuevo.
     compra = int(input("Seleccione la compra a modificar: "))
-    del lista[compra]
+    del lista[compra] 
     alta()
 
 print("Bienvendio al gestor de verduleria:")
