@@ -2,12 +2,14 @@
 
 import sys
 
-valores = int(sys.argv[1])
+import sys
 
 
-#Se crea condicional, con ejecuion por consola: py ejercicio1.py 2 3 8
-for numero in valores:
-    if valores % 2 == 0:
-        print("Es un numero par.")
+#Se crea condicional, con ejecuion por consola: py ejercicio2.py 2 3 8
+for numero in sys.argv[1:]:
+    valor = int(numero)
+    
+    if valor % 2 == 0:
+        print(f"El numero {valor} es un numero PAR.")
     else:
-        print("Es un numero impar.")
+        print(f"El numero {valor} es un numero IMPAR.")
