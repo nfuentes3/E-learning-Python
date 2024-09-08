@@ -6,12 +6,12 @@ master = Tk()
 master.geometry("290x130") #Tamaño predefinido de ventana
 
 ################ MODELO ################
-id_registros = 1
+id_registros = 0
 
 def insertar_alta(titulo, ruta, descripcion):
     global id_registros
-    archivo = open("altas.txt", "w")
-    archivo.write(f"\nAlta {id_registros}: Titulo: {titulo}, Ruta: {ruta}, Descripcion: {descripcion}")
+    archivo = open("altas.txt", "a")
+    archivo.write(f"Alta {id_registros}: Titulo: {titulo}, Ruta: {ruta}, Descripcion: {descripcion}\n")
     archivo.close()
 
 ################ CONTROLADOR ################
