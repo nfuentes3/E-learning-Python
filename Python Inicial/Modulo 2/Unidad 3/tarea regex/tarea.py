@@ -26,7 +26,7 @@ def guardar_producto(producto, descripcion, tree): #Genero una función donde ge
     crear_tabla()
     con = conexion()
     cursor = con.cursor()
-    if re.match("^[a-zA-Z0-9 ñÑ]+$",producto): #Creo un condicional con un RegEx donde solamente admita valores alfanuméricos.
+    if re.match("^[a-zA-Z0-9 ñÑ]+$",producto): #Creo un condicional con un RegEx donde solamente admita valores alfanuméricos ni campos vacíos.
             data = (producto, descripcion)
             sql = "INSERT INTO productos(producto, descripcion) VALUES (?,?)"
             cursor.execute(sql, data)
