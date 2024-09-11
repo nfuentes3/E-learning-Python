@@ -10,11 +10,11 @@ master.title("Lavadero - Calle Falsa 123")
 v_nombre, v_telefono, v_tipo, v_cantidad, v_precio, v_fecha_entrega, v_consulta = StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar()
 
 ########## MODELO ##########
-def conexion():
+def conexion(): #Creacion a la db y returna instancia de conexion
     con = sqlite3.connect("ordenes.db")
     return con
 
-def crear_tabla():
+def crear_tabla(): #Creacion de tabla
     con = conexion()
     cursor = con.cursor()
     sql = """ CREATE TABLE IF NOT EXISTS ordenes (
@@ -30,7 +30,7 @@ def crear_tabla():
     cursor.execute(sql)
     con.commit()
 
-def actualizar_tree(ordenes_tree):
+def actualizar_tree(ordenes_tree): #Actualiza y muestra todas las ordenes en el treeview
     crear_tabla()
     ordenes = ordenes_tree.get_children()
     for orden in ordenes:
@@ -44,7 +44,7 @@ def actualizar_tree(ordenes_tree):
     for fila in resultados:
         ordenes_tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
 
-def borrar_orden(tree):
+def borrar_orden(tree): #Borra orden seleccionada del treeview
     seleccion = tree.selection()
     orden = tree.item(seleccion)
     id_orden = orden['text']
@@ -61,7 +61,25 @@ def borrar_orden(tree):
     master.after(6000, borrar_mensaje, mensaje_borrar)
     print(f"Se borro la orden {id_orden} de {orden['values'][0]}")
 
-print(v_nombre.get())
+def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el treeview sus ordenes vigentes.
+    if nombre != '':
+        ordenes = tree.get_children()
+        for orden in ordenes:
+            tree.delete(orden)
+        con = conexion()
+        cursor = con.cursor()
+        data = (nombre,)
+        sql = "SELECT * FROM ordenes WHERE nombre = ? ORDER BY id ASC"
+        datos = cursor.execute(sql,data,)
+    
+        resultados = datos.fetchall()
+        for fila in resultados:
+            tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
+    else:
+        mensaje_vacio = Label(master, text="El campo no debe estar vacio, por favor indique el nombre del cliente.")
+        mensaje_vacio.place(x=190, y=565)
+        master.after(6000, borrar_mensaje, mensaje_vacio)
+
 ########## VISTA ##########
 #Encabezado
 encabezado = Label(master, text="Gestor de ordenes", bg="#2664FA", fg="white")
@@ -146,7 +164,7 @@ tree.grid(row=9, column=0, columnspan=6, padx=30, pady=10)
 
 ########## CONTROLADOR ##########
 
-def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree):
+def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #Crea una orden y actualiza el treeview con todas las ordenes.
     crear_tabla()
     con = conexion()
     cursor = con.cursor()
@@ -173,26 +191,7 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree):
         mensaje_error.place(x=240, y=565)
         master.after(6000, borrar_mensaje, mensaje_error)
 
-def consulta_nombre(nombre,tree):
-    if nombre != '':
-        ordenes = tree.get_children()
-        for orden in ordenes:
-            tree.delete(orden)
-        con = conexion()
-        cursor = con.cursor()
-        data = (nombre,)
-        sql = "SELECT * FROM ordenes WHERE nombre = ? ORDER BY id ASC"
-        datos = cursor.execute(sql,data,)
-    
-        resultados = datos.fetchall()
-        for fila in resultados:
-            tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
-    else:
-        mensaje_vacio = Label(master, text="El campo no debe estar vacio, por favor indique el nombre del cliente.")
-        mensaje_vacio.place(x=190, y=565)
-        master.after(6000, borrar_mensaje, mensaje_vacio)
-
-def borrar_mensaje(label):
+def borrar_mensaje(label): #Funcion que borra los label informativos que salen en la perte inferior de la app.
     label.destroy()
 
 actualizar_tree(tree)
