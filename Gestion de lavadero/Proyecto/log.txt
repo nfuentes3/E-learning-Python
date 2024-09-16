@@ -8,3 +8,4 @@ Alta = Orden: 5, Nombre: Pepe Lopez, Telefono: 1121212121, Tipo: Completo, Canti
 Alta = Orden: 6, Nombre: Martin Benitez, Telefono: 1414141414, Tipo: Completo, Cantidad: 3, Fecha: 16/09, Precio: 3400.
 Baja = Orden: 5, Nombre: Pepe Lopez, Telefono: 1121212121, Tipo: Completo, Cantidad: 4, Fecha: 20/09, Precio: 6800.0.
 Modificacion = Orden: 6, Nombre: Martin Benitez, Telefono: 1414141414, Tipo: Completo, Cantidad: 3, Fecha: 16/09, Precio: 3400.0.
+Alta = Orden: 7, Nombre: Nicolas Fuentes, Telefono: 1121898984, Tipo: Completo, Cantidad: 2, Fecha: 23/09, Precio: 4500.

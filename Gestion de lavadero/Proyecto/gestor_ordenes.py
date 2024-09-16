@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import sqlite3
 import re
+from datetime import datetime
 
 master = Tk()
 master.geometry("770x700")
@@ -94,6 +95,11 @@ def modificar_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tre
 #Encabezado
 encabezado = Label(master, text="Gestor de ordenes", bg="#2664FA", fg="white")
 encabezado.grid(row=0, column=0, columnspan=8, sticky=W+E)
+#Fecha y hora
+fecha = datetime.now()
+fecha_formateado = fecha.strftime("%d-%m-%Y    %H:%m")
+fecha_label = Label(master, text=f"{fecha_formateado}")
+fecha_label.grid(row=1, column=4, sticky=W ,padx=20)
 #Seccion alta
 titulo_alta = Label(master, text="Generar o modificar orden:")
 titulo_alta.grid(row=1, column=0, sticky=W ,padx=20)
@@ -143,9 +149,9 @@ boton_consultar.grid(row=2, column=4, ipadx=10, sticky=W)
 #Sector balance total
 balance = Label(master, text="Balance total:")
 balance.grid(row=3, column=3, sticky=W)
-balance_consultar = Entry(master, textvariable=v_balance)
-balance_consultar.grid(row=3, column=5, sticky=W)
-boton_calcular = Button(master, text="Calcular")
+entry_balance = Entry(master, textvariable=v_balance)
+entry_balance.grid(row=3, column=5, sticky=W)
+boton_calcular = Button(master, text="Calcular", command=lambda:balance_total())
 boton_calcular.grid(row=3, column=4, ipadx=6, pady=5, sticky=W)
 
 #Boton modificar
@@ -236,6 +242,20 @@ def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el t
         mensaje_vacio = Label(master, text="El campo no debe estar vacio, por favor indique el nombre del cliente.")
         mensaje_vacio.place(x=190, y=565)
         master.after(6000, borrar_mensaje, mensaje_vacio)
+
+def balance_total(): #Calcula el balance total de todos los precios.
+    precio_total = 0
+    #Conexion y accion en db.
+    con = conexion()
+    cursor = con.cursor()
+    sql = "SELECT * FROM ordenes ORDER BY id ASC"
+    datos = cursor.execute(sql)
+    #Inserta los datos en el treeview.
+    resultados = datos.fetchall()
+    for fila in resultados: #Itera cada reigstro, busca el precio y lo suma, para insertarlo en el entry.
+        precio_total += fila[6]
+    print(f'El balance total es de ${precio_total}')
+    entry_balance.insert(0, f'${precio_total}')
 
 def borrar_mensaje(label): #Borra los label informativos que salen en la perte inferior de la app.
     label.destroy()
