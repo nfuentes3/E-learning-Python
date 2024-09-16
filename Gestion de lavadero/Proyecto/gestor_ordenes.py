@@ -4,10 +4,10 @@ import sqlite3
 import re
 
 master = Tk()
-master.geometry("770x600")
+master.geometry("770x700")
 master.title("Lavadero - Calle Falsa 123")
 #Genero variables de tkinter
-v_nombre, v_telefono, v_tipo, v_cantidad, v_precio, v_fecha_entrega, v_consulta = StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar()
+v_nombre, v_telefono, v_tipo, v_cantidad, v_precio, v_fecha_entrega, v_consulta, v_balance = StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar()
 
 ########## MODELO ##########
 def conexion(): #Creacion a la db y returna instancia de conexion.
@@ -59,7 +59,7 @@ def borrar_orden(tree): #Borra orden en db seleccionada del treeview.
     tree.delete(seleccion)
     #Mensaje de evento en la ventana de Tkinter y en consola.
     mensaje_borrar = Label(master, text="Orden eliminada satisfactoriamente.", fg="blue")
-    mensaje_borrar.place(x=290, y=565)
+    mensaje_borrar.place(x=290, y=655)
     master.after(6000, borrar_mensaje, mensaje_borrar)
     print(f"Se borro la orden {id_orden} de {orden['values'][0]}")
     #Insercion de registro en log.
@@ -80,7 +80,7 @@ def modificar_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tre
     actualizar_tree(tree)
     #Mensaje de evento en la ventana de Tkinter y en consola.
     mensaje_modificacion = Label(master, text=f"Se ha modificado correctamente la orden: {id_orden}", fg="green")
-    mensaje_modificacion.place(x=240, y=565)
+    mensaje_modificacion.place(x=240, y=655)
     master.after(6000, borrar_mensaje, mensaje_modificacion)
     print(f"Se modificó la orden {id_orden} de {orden['values'][0]}")
     #Insercion de registro en log.
@@ -99,7 +99,7 @@ titulo_alta = Label(master, text="Generar o modificar orden:")
 titulo_alta.grid(row=1, column=0, sticky=W ,padx=20)
 #Nombre
 nombre = Label(master, text="Nombre", bg="#01F56A")
-nombre.grid(row=2, column=0,sticky=W, padx=20)
+nombre.grid(row=2, column=0,sticky=W, padx=20, pady=7)
 entry_nombre = Entry(master, textvariable=v_nombre)
 entry_nombre.grid(row=2, column=1,sticky=W)
 #Telefono
@@ -109,22 +109,22 @@ entry_telefono = Entry(master, textvariable=v_telefono)
 entry_telefono.grid(row=3, column=1, sticky=W)
 #Tipo de lavado
 tipo = Label(master, text="Tipo de lavado", bg="#01F56A")
-tipo.grid(row=4, column=0, sticky=W, padx=20)
+tipo.grid(row=4, column=0, sticky=W, padx=20, pady=7)
 entry_tipo = Entry(master, textvariable=v_tipo)
 entry_tipo.grid(row=4, column=1, sticky=W)
 #Cantidad de valet
 cantidad = Label(master, text="Cantidad", bg="#01F56A")
-cantidad.grid(row=5, column=0, sticky=W, padx=20)
+cantidad.grid(row=5, column=0, sticky=W, padx=20, pady=7)
 entry_cantidad = Entry(master, textvariable=v_cantidad)
 entry_cantidad.grid(row=5, column=1, sticky=W)
 #Fecha de entrega
 fecha_entrega = Label(master, text="Fecha de entrega", bg="#01F56A")
-fecha_entrega.grid(row=6, column=0, sticky=W, padx=20)
+fecha_entrega.grid(row=6, column=0, sticky=W, padx=20, pady=7)
 entry_fecha_entrega = Entry(master, textvariable=v_fecha_entrega)
 entry_fecha_entrega.grid(row=6, column=1, sticky=W)
 #Precio total
 precio = Label(master, text="Precio", bg="#01F56A")
-precio.grid(row=7, column=0, sticky=W, padx=20)
+precio.grid(row=7, column=0, sticky=W, padx=20, pady=7)
 entry_precio = Entry(master, textvariable=v_precio)
 entry_precio.grid(row=7, column=1, sticky=W)
 
@@ -136,9 +136,17 @@ boton_alta.grid(row=8, column=1, pady=10, padx=50, ipadx=10,sticky=W)
 consultar = Label(master, text="Consultar por cliente:")
 consultar.grid(row=2, column=3, sticky=W)
 entry_consultar = Entry(master, textvariable=v_consulta)
-entry_consultar.grid(row=2, column=4)
+entry_consultar.grid(row=2, column=5, sticky=W)
 boton_consultar = Button(master, text="Buscar", command=lambda:consulta_nombre(v_consulta.get(),tree))
-boton_consultar.grid(row=2, column=5, ipadx=10, sticky=W)
+boton_consultar.grid(row=2, column=4, ipadx=10, sticky=W)
+
+#Sector balance total
+balance = Label(master, text="Balance total:")
+balance.grid(row=3, column=3, sticky=W)
+balance_consultar = Entry(master, textvariable=v_balance)
+balance_consultar.grid(row=3, column=5, sticky=W)
+boton_calcular = Button(master, text="Calcular")
+boton_calcular.grid(row=3, column=4, ipadx=6, pady=5, sticky=W)
 
 #Boton modificar
 boton_modificar = Button(master, text="Modificar", command=lambda:modificar_orden(v_nombre.get(),v_telefono.get(),v_tipo.get(),v_cantidad.get(),v_fecha_entrega.get(),v_precio.get(),tree))
@@ -150,7 +158,7 @@ boton_borrar.grid(row=8, column=3, ipadx=10)
 
 #Boton ver todos
 boton_todos = Button(master, text="Ver todos", command=lambda:actualizar_tree(tree))
-boton_todos.grid(row=8, column=4, ipadx=10, padx=50)
+boton_todos.grid(row=8, column=5, ipadx=10, padx=30,sticky=W)
 
 #Treeview
 tree = ttk.Treeview(master, height=15)
@@ -197,7 +205,7 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
         print("***"*10)
         actualizar_tree(tree)
         mensaje_alta = Label(master, text="Orden generada satisfactoriamente.", fg="green")
-        mensaje_alta.place(x=290, y=565)
+        mensaje_alta.place(x=290, y=655)
         master.after(6000, borrar_mensaje, mensaje_alta)
         #Insercion de registro en log.
         log = f"Alta = Orden: {orden_id}, Nombre: {nombre}, Telefono: {telefono}, Tipo: {tipo}, Cantidad: {cantidad}, Fecha: {fecha_entrega}, Precio: {precio}."
@@ -207,7 +215,7 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
         limpiar_entrys(lista_entrys)
     else:
         mensaje_error = Label(master, text="Error! El campo 'Telefono' solo debe contenter numeros!", fg="red")
-        mensaje_error.place(x=240, y=565)
+        mensaje_error.place(x=240, y=655)
         master.after(6000, borrar_mensaje, mensaje_error)
 
 def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el treeview sus ordenes vigentes (Busqueda exacta).
