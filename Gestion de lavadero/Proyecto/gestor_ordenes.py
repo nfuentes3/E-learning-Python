@@ -10,11 +10,11 @@ master.title("Lavadero - Calle Falsa 123")
 v_nombre, v_telefono, v_tipo, v_cantidad, v_precio, v_fecha_entrega, v_consulta = StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar()
 
 ########## MODELO ##########
-def conexion(): #Creacion a la db y returna instancia de conexion
+def conexion(): #Creacion a la db y returna instancia de conexion.
     con = sqlite3.connect("ordenes.db")
     return con
 
-def crear_tabla(): #Creacion de tabla
+def crear_tabla(): #Creacion de tabla.
     con = conexion()
     cursor = con.cursor()
     sql = """ CREATE TABLE IF NOT EXISTS ordenes (
@@ -30,25 +30,26 @@ def crear_tabla(): #Creacion de tabla
     cursor.execute(sql)
     con.commit()
 
-def actualizar_tree(ordenes_tree): #Actualiza y muestra todas las ordenes en el treeview
+def actualizar_tree(ordenes_tree): #Actualiza y muestra todas las ordenes de la db en el treeview.
     crear_tabla()
     ordenes = ordenes_tree.get_children()
     for orden in ordenes:
         ordenes_tree.delete(orden)
+    #Conexion y accion en db.
     con = conexion()
     cursor = con.cursor()
     sql = "SELECT * FROM ordenes ORDER BY id ASC"
     datos = cursor.execute(sql)
-    
+    #Inserta los datos en el treeview.
     resultados = datos.fetchall()
     for fila in resultados:
         ordenes_tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
 
-def borrar_orden(tree): #Borra orden seleccionada del treeview
+def borrar_orden(tree): #Borra orden en db seleccionada del treeview.
     seleccion = tree.selection()
     orden = tree.item(seleccion)
     id_orden = orden['text']
-
+    #Conexion y accion en db.
     con=conexion()
     cursor = con.cursor()
     data = (id_orden,)
@@ -56,29 +57,38 @@ def borrar_orden(tree): #Borra orden seleccionada del treeview
     cursor.execute(sql, data)
     con.commit()
     tree.delete(seleccion)
+    #Mensaje de evento en la ventana de Tkinter y en consola.
     mensaje_borrar = Label(master, text="Orden eliminada satisfactoriamente.", fg="blue")
     mensaje_borrar.place(x=290, y=565)
     master.after(6000, borrar_mensaje, mensaje_borrar)
     print(f"Se borro la orden {id_orden} de {orden['values'][0]}")
+    #Insercion de registro en log.
+    log = f"Baja = Orden: {id_orden}, Nombre: {orden['values'][0]}, Telefono: {orden['values'][1]}, Tipo: {orden['values'][2]}, Cantidad: {orden['values'][3]}, Fecha: {orden['values'][4]}, Precio: {orden['values'][5]}."
+    insertar_log(log)
 
-def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el treeview sus ordenes vigentes.
-    if nombre != '':
-        ordenes = tree.get_children()
-        for orden in ordenes:
-            tree.delete(orden)
-        con = conexion()
-        cursor = con.cursor()
-        data = (nombre,)
-        sql = "SELECT * FROM ordenes WHERE nombre = ? ORDER BY id ASC"
-        datos = cursor.execute(sql,data,)
-    
-        resultados = datos.fetchall()
-        for fila in resultados:
-            tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
-    else:
-        mensaje_vacio = Label(master, text="El campo no debe estar vacio, por favor indique el nombre del cliente.")
-        mensaje_vacio.place(x=190, y=565)
-        master.after(6000, borrar_mensaje, mensaje_vacio)
+def modificar_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #Modifica la orden en db seleccionada en el treeview.
+    seleccion = tree.selection()
+    orden = tree.item(seleccion)
+    id_orden = orden['text']
+    #Conexion y accion en db.
+    con=conexion()
+    cursor = con.cursor()
+    data = (nombre, telefono, tipo, cantidad, fecha_entrega, precio, id_orden)
+    sql = "UPDATE ordenes SET nombre = ?, telefono = ?, tipo = ?, cantidad = ?, fecha = ?, precio = ? WHERE id = ?"
+    cursor.execute(sql, data)
+    con.commit()
+    actualizar_tree(tree)
+    #Mensaje de evento en la ventana de Tkinter y en consola.
+    mensaje_modificacion = Label(master, text=f"Se ha modificado correctamente la orden: {id_orden}", fg="green")
+    mensaje_modificacion.place(x=240, y=565)
+    master.after(6000, borrar_mensaje, mensaje_modificacion)
+    print(f"Se modificó la orden {id_orden} de {orden['values'][0]}")
+    #Insercion de registro en log.
+    log = f"Modificacion = Orden: {id_orden}, Nombre: {orden['values'][0]}, Telefono: {orden['values'][1]}, Tipo: {orden['values'][2]}, Cantidad: {orden['values'][3]}, Fecha: {orden['values'][4]}, Precio: {orden['values'][5]}."
+    insertar_log(log)
+    #Limpieza de los entrys.
+    lista_entrys = [entry_nombre,entry_telefono,entry_tipo,entry_cantidad,entry_fecha_entrega,entry_precio]
+    limpiar_entrys(lista_entrys)
 
 ########## VISTA ##########
 #Encabezado
@@ -131,7 +141,7 @@ boton_consultar = Button(master, text="Buscar", command=lambda:consulta_nombre(v
 boton_consultar.grid(row=2, column=5, ipadx=10, sticky=W)
 
 #Boton modificar
-boton_modificar = Button(master, text="Modificar")
+boton_modificar = Button(master, text="Modificar", command=lambda:modificar_orden(v_nombre.get(),v_telefono.get(),v_tipo.get(),v_cantidad.get(),v_fecha_entrega.get(),v_precio.get(),tree))
 boton_modificar.grid(row=8, column=0, pady=10, padx=50, ipadx=10,sticky=W)
 
 #Boton borrar
@@ -168,7 +178,8 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
     crear_tabla()
     con = conexion()
     cursor = con.cursor()
-    if re.match(r"^\d", telefono):
+    #Inserta una nueva orden con los argumentos obtenidos de los entrys.
+    if re.match(r"^\d", telefono): #Se utiliza RegEx para que solo tome numeros como valores.
         data = (nombre, telefono, tipo, cantidad, fecha_entrega, precio)
         sql = """INSERT INTO ordenes (
             nombre,
@@ -179,6 +190,8 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
             precio) VALUES (?,?,?,?,?,?)"""
         cursor.execute(sql, data)
         con.commit()
+        orden_id = cursor.lastrowid
+        ##Mensaje de evento en la ventana de Tkinter y en consola.
         print("Orden dada de alta:")
         print(f"Nombre: {nombre}\nTelefono: {telefono}\nTipo: {tipo}\nCantidad: {cantidad}\nFecha de entrega: {fecha_entrega}\nPrecio: {precio}\n")
         print("***"*10)
@@ -186,13 +199,46 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
         mensaje_alta = Label(master, text="Orden generada satisfactoriamente.", fg="green")
         mensaje_alta.place(x=290, y=565)
         master.after(6000, borrar_mensaje, mensaje_alta)
+        #Insercion de registro en log.
+        log = f"Alta = Orden: {orden_id}, Nombre: {nombre}, Telefono: {telefono}, Tipo: {tipo}, Cantidad: {cantidad}, Fecha: {fecha_entrega}, Precio: {precio}."
+        insertar_log(log)
+        #Limpieza de los entrys.
+        lista_entrys = [entry_nombre,entry_telefono,entry_tipo,entry_cantidad,entry_fecha_entrega,entry_precio]
+        limpiar_entrys(lista_entrys)
     else:
         mensaje_error = Label(master, text="Error! El campo 'Telefono' solo debe contenter numeros!", fg="red")
         mensaje_error.place(x=240, y=565)
         master.after(6000, borrar_mensaje, mensaje_error)
 
-def borrar_mensaje(label): #Funcion que borra los label informativos que salen en la perte inferior de la app.
+def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el treeview sus ordenes vigentes (Busqueda exacta).
+    if nombre != '':
+        ordenes = tree.get_children()
+        for orden in ordenes:
+            tree.delete(orden)
+        con = conexion()
+        cursor = con.cursor()
+        data = (nombre,)
+        sql = "SELECT * FROM ordenes WHERE nombre = ? ORDER BY id ASC"
+        datos = cursor.execute(sql,data,)
+        #Inserta los resultados en el treeview.
+        resultados = datos.fetchall()
+        for fila in resultados:
+            tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
+    else:
+        mensaje_vacio = Label(master, text="El campo no debe estar vacio, por favor indique el nombre del cliente.")
+        mensaje_vacio.place(x=190, y=565)
+        master.after(6000, borrar_mensaje, mensaje_vacio)
+
+def borrar_mensaje(label): #Borra los label informativos que salen en la perte inferior de la app.
     label.destroy()
 
-actualizar_tree(tree)
+def limpiar_entrys(data): #Limpia los entrys a la hora de realizar un alta o modificacion.
+    for entry in data:
+        entry.delete(0, END)
+
+def insertar_log(registro_log): #Inserta registros en un .txt de Alta, Baja y Modificacion.
+    log = open("log.txt", "a")
+    log.write(f'{registro_log}\n')
+
+actualizar_tree(tree) #Se llama a esta funcion para al abrir la app, muestre todos los registros de la db.
 master.mainloop()
