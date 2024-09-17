@@ -97,8 +97,8 @@ encabezado = Label(master, text="Gestor de ordenes", bg="#2664FA", fg="white")
 encabezado.grid(row=0, column=0, columnspan=8, sticky=W+E)
 #Fecha y hora
 fecha = datetime.now()
-fecha_formateado = fecha.strftime("%d-%m-%Y    %H:%m")
-fecha_label = Label(master, text=f"{fecha_formateado}")
+fecha_formateada = fecha.strftime("%d/%m/%Y    %H:%M")
+fecha_label = Label(master, text=f"{fecha_formateada}")
 fecha_label.grid(row=1, column=4, sticky=W ,padx=20)
 #Seccion alta
 titulo_alta = Label(master, text="Generar o modificar orden:")
@@ -240,7 +240,7 @@ def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el t
             tree.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3], fila[4], fila[5], fila[6]))
     else:
         mensaje_vacio = Label(master, text="El campo no debe estar vacio, por favor indique el nombre del cliente.")
-        mensaje_vacio.place(x=190, y=565)
+        mensaje_vacio.place(x=190, y=655)
         master.after(6000, borrar_mensaje, mensaje_vacio)
 
 def balance_total(): #Calcula el balance total de todos los precios.
