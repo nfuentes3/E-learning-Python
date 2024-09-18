@@ -3,6 +3,8 @@ from tkinter import ttk
 import sqlite3
 import re
 from datetime import datetime
+from tkinter.colorchooser import askcolor
+from tkinter import messagebox
 
 master = Tk()
 master.geometry("770x700")
@@ -16,6 +18,7 @@ def conexion(): #Creacion a la db y returna instancia de conexion.
     return con
 
 def crear_tabla(): #Creacion de tabla.
+    #Conexion y accion en db.
     con = conexion()
     cursor = con.cursor()
     sql = """ CREATE TABLE IF NOT EXISTS ordenes (
@@ -63,6 +66,7 @@ def borrar_orden(tree): #Borra orden en db seleccionada del treeview.
     mensaje_borrar.place(x=290, y=655)
     master.after(6000, borrar_mensaje, mensaje_borrar)
     print(f"Se borro la orden {id_orden} de {orden['values'][0]}")
+    print("***"*10)
     #Insercion de registro en log.
     log = f"Baja = Orden: {id_orden}, Nombre: {orden['values'][0]}, Telefono: {orden['values'][1]}, Tipo: {orden['values'][2]}, Cantidad: {orden['values'][3]}, Fecha: {orden['values'][4]}, Precio: {orden['values'][5]}."
     insertar_log(log)
@@ -71,25 +75,55 @@ def modificar_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tre
     seleccion = tree.selection()
     orden = tree.item(seleccion)
     id_orden = orden['text']
-    #Conexion y accion en db.
-    con=conexion()
-    cursor = con.cursor()
-    data = (nombre, telefono, tipo, cantidad, fecha_entrega, precio, id_orden)
-    sql = "UPDATE ordenes SET nombre = ?, telefono = ?, tipo = ?, cantidad = ?, fecha = ?, precio = ? WHERE id = ?"
-    cursor.execute(sql, data)
-    con.commit()
-    actualizar_tree(tree)
-    #Mensaje de evento en la ventana de Tkinter y en consola.
-    mensaje_modificacion = Label(master, text=f"Se ha modificado correctamente la orden: {id_orden}", fg="green")
-    mensaje_modificacion.place(x=240, y=655)
-    master.after(6000, borrar_mensaje, mensaje_modificacion)
-    print(f"Se modificó la orden {id_orden} de {orden['values'][0]}")
-    #Insercion de registro en log.
-    log = f"Modificacion = Orden: {id_orden}, Nombre: {orden['values'][0]}, Telefono: {orden['values'][1]}, Tipo: {orden['values'][2]}, Cantidad: {orden['values'][3]}, Fecha: {orden['values'][4]}, Precio: {orden['values'][5]}."
-    insertar_log(log)
-    #Limpieza de los entrys.
-    lista_entrys = [entry_nombre,entry_telefono,entry_tipo,entry_cantidad,entry_fecha_entrega,entry_precio]
-    limpiar_entrys(lista_entrys)
+    if nombre != '' and telefono != '' and tipo != '' and cantidad != '' and fecha_entrega != '' and precio != '': #Declaro una condicional de que no haya nigun campo vacio.
+        #Conexion y accion en db.
+        con=conexion()
+        cursor = con.cursor()
+        data = (nombre, telefono, tipo, cantidad, fecha_entrega, precio, id_orden)
+        sql = "UPDATE ordenes SET nombre = ?, telefono = ?, tipo = ?, cantidad = ?, fecha = ?, precio = ? WHERE id = ?"
+        cursor.execute(sql, data)
+        con.commit()
+        actualizar_tree(tree)
+        #Mensaje de evento en la ventana de Tkinter y en consola.
+        mensaje_modificacion = Label(master, text=f"Se ha modificado correctamente la orden: {id_orden}", fg="green")
+        mensaje_modificacion.place(x=240, y=655)
+        master.after(6000, borrar_mensaje, mensaje_modificacion)
+        print(f"Se modificó la orden {id_orden} de {orden['values'][0]}")
+        print("***"*10)
+        #Insercion de registro en log.
+        log = f"Modificacion = Orden: {id_orden}, Nombre: {orden['values'][0]}, Telefono: {orden['values'][1]}, Tipo: {orden['values'][2]}, Cantidad: {orden['values'][3]}, Fecha: {orden['values'][4]}, Precio: {orden['values'][5]}."
+        insertar_log(log)
+        #Limpieza de los entrys.
+        limpiar_entrys()
+    else:
+        print("Error! Falta un dato para completar.")
+        #Mensaje de evento en la ventana de Tkinter y en consola.
+        mensaje_error_modificacion = Label(master, text=f"Error! No debe haber ningun campo vacio para modificar!", fg="black")
+        mensaje_error_modificacion.place(x=240, y=655)
+        master.after(6000, borrar_mensaje, mensaje_error_modificacion)
+
+def borrar_base(tree):
+    user_consulta = messagebox.askokcancel(message="Desea eliminar todos los registros?", title="Borrar todos los datos")
+    if user_consulta == True:
+        #Conexion y accion en db.
+        con = conexion()
+        cursor = con.cursor()
+        sql = "DELETE FROM ordenes"
+        cursor.execute(sql)
+        con.commit()
+        #Mensaje de evento en la ventana de Tkinter y en consola.
+        mensaje_borrar_base = Label(master, text=f"Se han eliminado todos los registros.", fg="blue")
+        mensaje_borrar_base.place(x=280, y=655)
+        master.after(6000, borrar_mensaje, mensaje_borrar_base)
+        print("Se eliminaron todos los registros de la tabla 'Ordenes'.")
+        print("***"*10)
+        
+        actualizar_tree(tree)
+    else:
+        print("Operacion cancelada (borrar todos los registros.)")
+        mensaje_borrar_base = Label(master, text=f"Operacion anulada.", fg="black")
+        mensaje_borrar_base.place(x=320, y=655)
+        master.after(6000, borrar_mensaje, mensaje_borrar_base)
 
 ########## VISTA ##########
 #Encabezado
@@ -97,8 +131,8 @@ encabezado = Label(master, text="Gestor de ordenes", bg="#2664FA", fg="white")
 encabezado.grid(row=0, column=0, columnspan=8, sticky=W+E)
 #Fecha y hora
 fecha = datetime.now()
-fecha_formateada = fecha.strftime("%d/%m/%Y    %H:%M")
-fecha_label = Label(master, text=f"{fecha_formateada}")
+fecha_format_pantalla = fecha.strftime("%d/%m/%Y    %H:%M")
+fecha_label = Label(master, text=f"{fecha_format_pantalla}")
 fecha_label.grid(row=1, column=4, sticky=W ,padx=20)
 #Seccion alta
 titulo_alta = Label(master, text="Generar o modificar orden:")
@@ -110,7 +144,7 @@ entry_nombre = Entry(master, textvariable=v_nombre)
 entry_nombre.grid(row=2, column=1,sticky=W)
 #Telefono
 telefono = Label(master, text="Telefono", bg="#01F56A")
-telefono.grid(row=3, column=0, sticky=W, padx=20)
+telefono.grid(row=3, column=0, sticky=W, padx=20, pady=7)
 entry_telefono = Entry(master, textvariable=v_telefono)
 entry_telefono.grid(row=3, column=1, sticky=W)
 #Tipo de lavado
@@ -144,15 +178,27 @@ consultar.grid(row=2, column=3, sticky=W)
 entry_consultar = Entry(master, textvariable=v_consulta)
 entry_consultar.grid(row=2, column=5, sticky=W)
 boton_consultar = Button(master, text="Buscar", command=lambda:consulta_nombre(v_consulta.get(),tree))
-boton_consultar.grid(row=2, column=4, ipadx=10, sticky=W)
+boton_consultar.grid(row=2, column=4, ipadx=10)
 
 #Sector balance total
 balance = Label(master, text="Balance total:")
-balance.grid(row=3, column=3, sticky=W)
+balance.grid(row=4, column=3, sticky=E)
 entry_balance = Entry(master, textvariable=v_balance)
-entry_balance.grid(row=3, column=5, sticky=W)
+entry_balance.grid(row=4, column=5, sticky=W)
 boton_calcular = Button(master, text="Calcular", command=lambda:balance_total())
-boton_calcular.grid(row=3, column=4, ipadx=6, pady=5, sticky=W)
+boton_calcular.grid(row=4, column=4, ipadx=6, pady=5)
+
+#Boton exportar
+boton_exportar = Button(master, text="Exportar", command=lambda:exportar_ordenes())
+boton_exportar.grid(row=6, column=3)
+
+#Boton cambiar color
+boton_color = Button(master, text="Color fondo", command=lambda:cambiar_fondo())
+boton_color.grid(row=6, column=4)
+
+#Boton limpiar todo
+boton_borrar_todo = Button(master, text="Borrar todo", command=lambda:borrar_base(tree))
+boton_borrar_todo.grid(row=6, column=5)
 
 #Boton modificar
 boton_modificar = Button(master, text="Modificar", command=lambda:modificar_orden(v_nombre.get(),v_telefono.get(),v_tipo.get(),v_cantidad.get(),v_fecha_entrega.get(),v_precio.get(),tree))
@@ -202,14 +248,14 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
             cantidad,
             fecha,
             precio) VALUES (?,?,?,?,?,?)"""
+        #Conexion y accion en db.
         cursor.execute(sql, data)
         con.commit()
         orden_id = cursor.lastrowid
-        ##Mensaje de evento en la ventana de Tkinter y en consola.
+        #Mensaje de evento en la ventana de Tkinter y en consola.
         print("Orden dada de alta:")
         print(f"Nombre: {nombre}\nTelefono: {telefono}\nTipo: {tipo}\nCantidad: {cantidad}\nFecha de entrega: {fecha_entrega}\nPrecio: {precio}\n")
         print("***"*10)
-        actualizar_tree(tree)
         mensaje_alta = Label(master, text="Orden generada satisfactoriamente.", fg="green")
         mensaje_alta.place(x=290, y=655)
         master.after(6000, borrar_mensaje, mensaje_alta)
@@ -217,18 +263,20 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
         log = f"Alta = Orden: {orden_id}, Nombre: {nombre}, Telefono: {telefono}, Tipo: {tipo}, Cantidad: {cantidad}, Fecha: {fecha_entrega}, Precio: {precio}."
         insertar_log(log)
         #Limpieza de los entrys.
-        lista_entrys = [entry_nombre,entry_telefono,entry_tipo,entry_cantidad,entry_fecha_entrega,entry_precio]
-        limpiar_entrys(lista_entrys)
+        limpiar_entrys()
+        
+        actualizar_tree(tree)
     else:
         mensaje_error = Label(master, text="Error! El campo 'Telefono' solo debe contenter numeros!", fg="red")
         mensaje_error.place(x=240, y=655)
         master.after(6000, borrar_mensaje, mensaje_error)
 
 def consulta_nombre(nombre,tree): #Busca el nombre del cliente y muestra en el treeview sus ordenes vigentes (Busqueda exacta).
-    if nombre != '':
+    if nombre != '': #Condicional para que el campo no este vacio.
         ordenes = tree.get_children()
         for orden in ordenes:
             tree.delete(orden)
+        #Conexion y accion en db.
         con = conexion()
         cursor = con.cursor()
         data = (nombre,)
@@ -255,18 +303,47 @@ def balance_total(): #Calcula el balance total de todos los precios.
     for fila in resultados: #Itera cada reigstro, busca el precio y lo suma, para insertarlo en el entry.
         precio_total += fila[6]
     print(f'El balance total es de ${precio_total}')
-    entry_balance.insert(0, f'${precio_total}')
+    print("***"*10)
+    entry_balance.insert(0, f'${precio_total}') #Muestra el resultado en el entry
 
 def borrar_mensaje(label): #Borra los label informativos que salen en la perte inferior de la app.
     label.destroy()
 
-def limpiar_entrys(data): #Limpia los entrys a la hora de realizar un alta o modificacion.
-    for entry in data:
-        entry.delete(0, END)
+def limpiar_entrys(): #Limpia los entrys a la hora de realizar un alta o modificacion.
+    lista_entrys = [v_nombre, v_telefono, v_tipo, v_cantidad, v_fecha_entrega, v_precio]
+    for var in lista_entrys:
+        var.set("")
 
 def insertar_log(registro_log): #Inserta registros en un .txt de Alta, Baja y Modificacion.
     log = open("log.txt", "a")
     log.write(f'{registro_log}\n')
+
+def exportar_ordenes(): #Exoporta todos los registros de la db en un .txt
+    fecha_format_txt = fecha.strftime("%d-%m-%Y_%H%M%S")
+    ordenes_actuales = open(f"ordenes_{fecha_format_txt}.txt","w") #Coloca como titulo la fecha y hora de ejecucion.
+    #Conexion y accion en db.
+    con = conexion()
+    cursor = con.cursor()
+    sql = "SELECT * FROM ordenes ORDER BY id ASC"
+    datos = cursor.execute(sql)
+    resultados = datos.fetchall()
+    precio_total = 0
+    #Escribe cada resultado en el .txt
+    for fila in resultados:
+        ordenes_actuales.write(f"Orden:{fila[0]}, Nombe: {fila[1]}, Telefono:{fila[2]}, Tipo: {fila[3]}, Cantidad: {fila[4]}, Fecha de entrega: {fila[5]}, Precio: {fila[6]} \n")
+        precio_total += fila[6]
+    ordenes_actuales.write(f"Total a recaudar: $ {precio_total}")
+    #Mensaje de evento en la ventana de Tkinter y en consola.
+    print(f"Se exporto el archivo: {fecha_format_txt}.txt con todos los registros.")
+    print("***"*10)
+    ordenes_actuales.close()
+    mensaje_exportado = Label(master, text="Se exporto el archivo con todas las ordenes vigentes.")
+    mensaje_exportado.place(x=240, y=655)
+    master.after(6000, borrar_mensaje, mensaje_exportado)
+
+def cambiar_fondo(): #Funcion que cambia color de la ventana master
+    color_elegido = askcolor(color="#00ff00",title="Seleccione un color" )
+    master.configure(background=color_elegido[1])
 
 actualizar_tree(tree) #Se llama a esta funcion para al abrir la app, muestre todos los registros de la db.
 master.mainloop()
