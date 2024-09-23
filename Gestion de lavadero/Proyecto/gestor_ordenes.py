@@ -254,13 +254,13 @@ def alta_orden(nombre, telefono, tipo, cantidad, fecha_entrega, precio, tree): #
         orden_id = cursor.lastrowid
         #Mensaje de evento en la ventana de Tkinter y en consola.
         print("Orden dada de alta:")
-        print(f"Nombre: {nombre}\nTelefono: {telefono}\nTipo: {tipo}\nCantidad: {cantidad}\nFecha de entrega: {fecha_entrega}\nPrecio: {precio}\n")
+        print(f"Nombre: {nombre}\nTelefono: {telefono}\nTipo: {tipo}\nCantidad: {cantidad}\nFecha de entrega: {fecha_entrega}\nPrecio: $ {precio}\n")
         print("***"*10)
         mensaje_alta = Label(master, text="Orden generada satisfactoriamente.", fg="green")
         mensaje_alta.place(x=290, y=655)
         master.after(6000, borrar_mensaje, mensaje_alta)
         #Insercion de registro en log.
-        log = f"Alta = Orden: {orden_id}, Nombre: {nombre}, Telefono: {telefono}, Tipo: {tipo}, Cantidad: {cantidad}, Fecha: {fecha_entrega}, Precio: {precio}."
+        log = f"Alta = Orden: {orden_id}, Nombre: {nombre}, Telefono: {telefono}, Tipo: {tipo}, Cantidad: {cantidad}, Fecha: {fecha_entrega}, Precio: $ {precio}."
         insertar_log(log)
         #Limpieza de los entrys.
         limpiar_entrys()

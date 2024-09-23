@@ -1,0 +1,11 @@
+Alta = Orden: 1, Nombre: Nicolas Fuentes, Telefono: 1121899480, Tipo: Completo, Cantidad: 2, Fecha: 23/09, Precio: $ 5000.
+Alta = Orden: 2, Nombre: Daiana Pattacini, Telefono: 1132324332, Tipo: Completo, Cantidad: 1, Fecha: 23/09, Precio: $ 2500.
+Alta = Orden: 3, Nombre: Nicolas Fuentes, Telefono: 1121899480, Tipo: Lavado solo, Cantidad: 1, Fecha: 24/09, Precio: $ 2300.
+Alta = Orden: 4, Nombre: Jorge Lopez, Telefono: 1198987676, Tipo: Secado solo, Cantidad: 2, Fecha: 23/09, Precio: $ 4500.
+Alta = Orden: 5, Nombre: Marcos Rueda, Telefono: 1145456343, Tipo: Completo, Cantidad: 3, Fecha: 24/09, Precio: $ 7500.
+Alta = Orden: 6, Nombre: Martin Ruiz, Telefono: 1131314343, Tipo: Secado solo, Cantidad: 1, Fecha: 25/09, Precio: $ 4300.
+Alta = Orden: 7, Nombre: Laura Gonzales, Telefono: 1154546756, Tipo: Completo, Cantidad: 2, Fecha: 25/09, Precio: $ 5000.
+Alta = Orden: 8, Nombre: Martin Gimenez, Telefono: 1143435432, Tipo: Completo, Cantidad: 1, Fecha: 23/09, Precio: $ 2500.
+Baja = Orden: 4, Nombre: Jorge Lopez, Telefono: 1198987676, Tipo: Secado solo, Cantidad: 2, Fecha: 23/09, Precio: 4500.0.
+Alta = Orden: 9, Nombre: Nicolas Fuentes, Telefono: 1121899480, Tipo: Completo, Cantidad: 1, Fecha: 24/09, Precio: $ 3400.
+Modificacion = Orden: 9, Nombre: Nicolas Fuentes, Telefono: 1121899480, Tipo: Completo, Cantidad: 1, Fecha: 24/09, Precio: 3400.0.
