@@ -37,6 +37,7 @@ def guardar_producto(producto, descripcion, tree): #Genero una función donde ge
         print("Error! El producto no debe estar vacío o debe contener solamente caracteres alfanuméricos.\nIngrese otro producto.")
 
 def actualizar_tree(tree_productos): #Genero una función para actualizar los datos del Treeview de Tkinter al dar de alta un producto.
+    crear_tabla()
     registros = tree_productos.get_children()
     for registro in registros:
         tree_productos.delete(registro)
@@ -77,4 +78,5 @@ tree.column("col2", width=100, minwidth=100, anchor=W)
 tree.heading("col2", text="Descripcion")
 tree.grid(column=0, row=4, columnspan=4)
 
+actualizar_tree(tree)
 master.mainloop()

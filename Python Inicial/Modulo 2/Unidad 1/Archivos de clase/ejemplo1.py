@@ -49,6 +49,7 @@ def borrar(tree):
     print(item)    #{'text': 5, 'image': '', 'values': ['daSDasd', '13.0', '2.0'], 'open': 0, 'tags': ''}
     print(item['text'])
     mi_id = item['text']
+    print(f"{item['values'][0]}")
 
     con=conexion()
     cursor=con.cursor()
