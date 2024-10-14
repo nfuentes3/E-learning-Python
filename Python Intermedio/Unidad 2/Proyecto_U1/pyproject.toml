@@ -1,0 +1,12 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "wheel"]
+
+[project]
+authors = [
+  {name = "Tu Nombre", email = "tu_email@example.com"},
+]
+dependencies = []
+description = "Mi paquete Python"
+name = "mi_paquete"
+version = "0.1"

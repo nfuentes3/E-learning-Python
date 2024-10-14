@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)
 print(">>>>>>", BASE_DIR)"""
 
-from NicolasPack import ver
+from mi_paquete import ver
 
 #print(sys.path)
 ver.imprimir("".join(sys.argv[1:]))
