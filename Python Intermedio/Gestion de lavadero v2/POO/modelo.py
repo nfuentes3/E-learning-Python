@@ -1,14 +1,15 @@
 import sqlite3
 import re
+from datetime import datetime
 
 class OperacionesDB:
 
     def __init__(self, nombre_db = "ordenes.db"):
         self.conexion = sqlite3.connect(nombre_db)
         self.cursor = self.conexion.cursor()
-        self.__crear_tabla() #Llamo al metodo crear tabla para que al abrir, intente crear la tabla si no existe.
+        self._crear_tabla() #Llamo al metodo crear tabla para que al abrir, intente crear la tabla si no existe.
 
-    def __crear_tabla(self): #Clase privada para la creacion de la tabla
+    def _crear_tabla(self): #Clase privada para la creacion de la tabla
         try:
             self.cursor.execute(
                 """ CREATE TABLE IF NOT EXISTS ordenes (
@@ -18,6 +19,7 @@ class OperacionesDB:
                 tipo varchar(20),
                 cantidad int,
                 fecha varchar(20),
+                horario varchar(20),
                 precio float
             )
             """)
@@ -25,9 +27,15 @@ class OperacionesDB:
         except:
             print("ERROR AL CREAR TABLA EN BASE DE DATOS.")
     
-    def alta_orden(self, nombre, telefono, tipo, cantidad, fecha, precio): #Alta de orden en db.
+    def alta_orden(self, nombre, telefono, tipo, cantidad, fecha, horario, precio): #Alta de orden en db.
         try:
-            if re.match(r"^\d", telefono):
+            if not re.match(r'^\d+$', str(telefono)) or telefono == '':
+                print("El campo 'Telefono' solo debe contener numeros ni debe estar vacio!")
+                return False
+            elif not re.match(r'^\d+$', str(precio)) or precio == "":
+                print("El campo 'Precio' solo debe contener numeros ni debe estar vacio!")
+                return False
+            else:
                 self.cursor.execute(
                 """INSERT INTO ordenes (
                 nombre,
@@ -35,16 +43,16 @@ class OperacionesDB:
                 tipo,
                 cantidad,
                 fecha,
-                precio) VALUES (?,?,?,?,?,?)""", (nombre, telefono, tipo, cantidad, fecha, precio))
+                horario,
+                precio) VALUES (?,?,?,?,?,?,?)""", (nombre, telefono, tipo, cantidad, fecha, horario, precio))
                 self.conexion.commit()
                 print("Orden dada de alta:")
-                print(f"Nombre: {nombre}\nTelefono: {telefono}\nTipo: {tipo}\nCantidad: {cantidad}\nFecha de entrega: {fecha}\nPrecio: $ {precio}\n")
+                print(f"Nombre: {nombre}\nTelefono: {telefono}\nTipo: {tipo}\nCantidad: {cantidad}\nFecha de entrega: {fecha}\nHorario: {horario}\nPrecio: $ {precio}\n")
                 print("***"*10)
-            else:
-                print("El campo 'Telefono' solo debe contener numeros!")
+                return True
         except:
-            print("ERROR EN ALTA DE ORDEN.")
-            print("***"*10)
+            print("Error de alta en base!")
+
     
     def consulta_ordenes(self): #Devuelve todas las ordenes disponibles en la db
         ordenes = self.cursor.execute("SELECT * FROM ordenes ORDER BY id ASC")
@@ -53,7 +61,7 @@ class OperacionesDB:
     
     def borrar_orden(self, id): #Borra la orden perteneciente al id
         try:
-            self.cursor.execute("DELETE FROM ordenes WHERE id = ?;", id)
+            self.cursor.execute("DELETE FROM ordenes WHERE id = ?;", (id,))
             self.conexion.commit()
             print(f"Se ha borrado la orden: {id}")
             print("***" * 10)
@@ -78,20 +86,41 @@ class OperacionesDB:
             print("No se encontaron resultados.")
             print("***" * 10)
 
-    def modificar_orden(self, id, nombre, telefono, tipo, cantidad, fecha, precio): #Modifica la orden del id seleccionado
+    def modificar_orden(self, id, nombre, telefono, tipo, cantidad, fecha, horario, precio): #Modifica la orden del id seleccionado
         try:
-            self.cursor.execute("UPDATE ordenes SET nombre = ?, telefono = ?, tipo = ?, cantidad = ?, fecha = ?, precio = ? WHERE id = ?", (nombre, telefono, tipo, cantidad, fecha, precio, id))
+            self.cursor.execute("UPDATE ordenes SET nombre = ?, telefono = ?, tipo = ?, cantidad = ?, fecha = ?, horario = ?, precio = ? WHERE id = ?", (nombre, telefono, tipo, cantidad, fecha, horario, precio, id))
             self.conexion.commit()
             print(f"Se modifico la orden: {id}")
             print("***" * 10)
         except:
             print("ERROR: No se pudo modificar la orden (modelo).")
 
+    def borrar_todo(self):
+        try:
+            self.cursor.execute("DELETE FROM ordenes;")
+            self.conexion.commit()
+            print("Se han borrado todas las ordenes de la db.")
+        except:
+            print("Error al borrar todas las ordenes de la db.")
 
+    def exportar_ordenes(self):
+        fecha = datetime.now()
+        fecha_format = fecha.strftime("%d-%m-%Y_%H-%M")
+        archivo = open(f"ordenes_{fecha_format}.txt", "w")
+        ordenes = self.consulta_ordenes()
+        total = 0
+        for orden in ordenes:
+            archivo.write(f"Orden:{orden[0]}, Nombe: {orden[1]}, Telefono:{orden[2]}, Tipo: {orden[3]}, Cantidad: {orden[4]}, Fecha de entrega: {orden[5]}, Horario: {orden[6]}, Precio: {orden[7]} \n")
+            total += orden[7]
+        archivo.write(f"Total a recaudar: $ {total}")
+        print(f"Se exporto el archivo: {fecha_format}.txt con todos los registros.")
+        print("***"*10)
+        archivo.close()
 
 if __name__ == "__main__":
     db = OperacionesDB()
-    db.alta_orden("Test","123123123","Completo","2","30/10",4500)
-    print(db.consulta_ordenes())
-    print(db.consulta_nombre("Nicolas Fuentes"))
-    db.borrar_orden("9")
+    #db.alta_orden("test","asdads","Completo",2,"12312","tarde","123123")
+    #db.borrar_orden(3)
+    #db.consulta_nombre("Nicolas Fuentes")
+    #db.modificar_orden(21,"Carlos Lampe","1122312312","Completo","2","31/10/2024","Tarde",4500)
+    #db.exportar_ordenes()
