@@ -169,11 +169,12 @@ class OperacionesCRUD:
 
 
 if __name__ == "__main__":
-    op = OperacionesCRUD()
+    #op = OperacionesCRUD()
     #op.alta_orden("ggggggggg","11111","secado",2,"21/11","Tarde","44123")
-    #op.borrar_orden(1)
+    #op.borrar_orden(22)
     #op.modificar_orden(6, "cdddd",1233,"completo",2,"09/11","Tarde",3400)
     #op.consulta_ordenes()
     #op.consulta_nombre("Daiana Patta")
     #op.borrar_todo()
     #op.exportar_ordenes()
+    pass
