@@ -1,7 +1,16 @@
+#Modulos internos
 from vista import *
 from modelo import *
 
 class Controller:
+    """
+        Clase que contiene toda la interaccion con la interfaz de usuario.
+        --- Constructor --- 
+            -Crea la ventana principal y la vista.
+            -Llama a la funcion actualizar_tree para actualizar el arbol de la base de datos.
+            -Conecta los botones de vista.py con los metodos de la clase.
+            
+    """
     def __init__(self):
         self.ventana = Tk()
         self.vista = MainVentana(self.ventana)
@@ -15,9 +24,23 @@ class Controller:
         self.vista.boton_consultar.config(command=lambda:self.consultar())
         self.vista.boton_calcular.config(command=lambda:self.balance_total())
         self.vista.boton_exportar.config(command=lambda:self.exportar())
-        
+        self.vista.boton_borrar_todo.config(command=lambda:self.borrar_todo())
 
     def alta(self):
+        """
+            Funcion que permite generar una nueva orden.
+            ---------------------------------------------
+            Conecta las variables de tkinter para pasarlos como parametros a la funcion alta_orden de la clase modelo.
+            
+            Parametros:
+                -nombre: Nombre de la orden.
+                -telefono: Telefono de la orden.
+                -tipo: Tipo de la orden.
+                -cantidad: Cantidad de la orden.
+                -fecha: Fecha de la orden.
+                -horario: Horario de la orden.
+                -precio: Precio de la orden.
+        """
         try:
             nombre, telefono, tipo, cantidad, fecha, horario, precio = self.vista.v_nombre.get(),self.vista.v_telefono.get(),self.vista.v_tipo.get(),self.vista.v_cantidad.get(),self.vista.v_fecha.get(),self.vista.v_horario.get(),self.vista.v_precio.get()
             if re.match(r'^\d+$', telefono) and re.match(r'^\d+$', precio): #RegEx solo numeros ni vacio para precio y telefono
@@ -34,6 +57,11 @@ class Controller:
     
     
     def borrar(self):
+        """
+            Funcion que permite borrar una orden.
+            -------------------------------------
+            Obtiene la seleccion de la vista del treeview y la borra de la base de datos.
+        """
         try:
             seleccion = self.vista.tree.selection()
             orden = self.vista.tree.item(seleccion)
@@ -50,6 +78,21 @@ class Controller:
     
     
     def modificar(self):
+        """
+            Funcion que permite modificar una orden.
+            ----------------------------------------
+            Conecta las variables de tkinter para pasarlos como parametros a la funcion modificar_orden de la clase modelo.
+            
+            Parametros:
+                -id_orden: Identificador de la orden que se selcciona del treeview de tkinter.
+                -nombre: Nombre de la orden.
+                -telefono: Telefono de la orden.
+                -tipo: Tipo de la orden.
+                -cantidad: Cantidad de la orden.
+                -fecha: Fecha de la orden.
+                -horario: Horario de la orden.
+                -precio: Precio de la orden.
+        """
         try:
             seleccion = self.vista.tree.selection()
             orden = self.vista.tree.item(seleccion)
@@ -72,6 +115,14 @@ class Controller:
 
 
     def consultar(self):
+        """
+            Funcion que permite realizar una consulta por nombre.
+            ------------------------------------------------------
+            Obtiene el nombre del campo de busqueda y lo pasa a la funcion consulta_nombre de la clase modelo.
+            
+            Parametros:
+                -nombre: Nombre de la orden que se busca.
+        """
         try:
             nombre = self.vista.v_consulta.get()
             resultado = self.modelo.consulta_nombre(nombre)
@@ -92,6 +143,11 @@ class Controller:
 
 
     def borrar_todo(self):
+        """
+            Funcion que permite borrar todas las ordenes.
+            ---------------------------------------------
+            Pregunta al usuario si desea borrar todas las ordenes y si es asi, se borran todas las ordenes.
+        """
         try:
             respuesta = messagebox.askyesno("Borrar todas las ordenes","Desea borrar todas las ordenes?")
             if respuesta == True:
@@ -104,6 +160,11 @@ class Controller:
     
     
     def balance_total(self):
+        """
+            Funcion que permite calcular el balance a cobrar total de las ordenes.
+            ----------------------------------------------------------------------
+            Obtiene el resultado del metodo consulta_ordenes de la clase modelo y el resultado lo inserta en el entry de balance.
+        """
         total = 0
         resultado = self.modelo.consulta_ordenes()
         for orden in resultado:
@@ -117,11 +178,21 @@ class Controller:
                 self.vista.alerta(f"El total a recuadar es de ${total}",COLOR_INFO, TEXT_INFO)
     
     def exportar(self):
+        """
+            Funcion que permite exportar todas las ordenes.
+            -----------------------------------------------
+            Llama a la funcion exportar_ordenes de la clase modelo.
+        """
         self.modelo.exportar_ordenes()
         messagebox.showinfo("Exportar ordenes", "Se han exportado todas las ordenes.")
     
     
     def actualizar_tree(self):
+        """
+            Funcion que permite actualizar el treeview de tkinter.
+            ------------------------------------------------------
+            Obtiene el resultado de la consulta de la base de datos y lo inserta en el arbol del treeview.
+        """
         try:
             self.ordenes = self.vista.tree.get_children()
             for orden in self.ordenes:
