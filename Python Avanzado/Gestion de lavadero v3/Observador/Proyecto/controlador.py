@@ -1,5 +1,6 @@
 from vista import *
 from modelo import *
+from fileobs import ObservadorABM
 
 class Controller:
     def __init__(self):
@@ -7,6 +8,8 @@ class Controller:
         self.vista = MainVentana(self.ventana)
         self.modelo = OperacionesCRUD()
         self.actualizar_tree()
+        self.observador_controlador = ObservadorABM()
+        self.modelo.agregar_observador(self.observador_controlador)
         
         self.vista.boton_todos.config(command=lambda:self.actualizar_tree())
         self.vista.boton_alta.config(command=lambda:self.alta())
@@ -16,7 +19,8 @@ class Controller:
         self.vista.boton_calcular.config(command=lambda:self.balance_total())
         self.vista.boton_exportar.config(command=lambda:self.exportar())
         self.vista.boton_borrar_todo.config(command=lambda:self.borrar_todo())
-        
+    
+
     def alta(self):
         try:
             nombre, telefono, tipo, cantidad, fecha, horario, precio = self.vista.v_nombre.get(),self.vista.v_telefono.get(),self.vista.v_tipo.get(),self.vista.v_cantidad.get(),self.vista.v_fecha.get(),self.vista.v_horario.get(),self.vista.v_precio.get()
@@ -25,12 +29,14 @@ class Controller:
                 self.actualizar_tree()
                 self.vista.limpiar_entrys()
                 self.vista.alerta("Nueva orden generada",COLOR_OK,TEXT_INFO)
+                self.modelo.notificar_observadores("Alta de orden", f"{nombre}, {telefono}, {tipo}, {cantidad}, {fecha}, {horario}, {precio}")
                 
             else:
                 messagebox.showerror("Error en el alta","El campo 'Telefono' y 'Precio' solo deben contenter numeros ni deben estar vacios!")
                 print("El campo 'Telefono' y 'Precio' solo deben contenter numeros ni deben estar vacios!")
         except Exception as err:
             print("Error al dar de alta en ventana:",err)
+    
     
     def borrar(self):
         try:
@@ -44,8 +50,10 @@ class Controller:
                 self.modelo.borrar_orden(id_orden)
                 self.actualizar_tree()
                 self.vista.alerta(f"La orden {id_orden} fue eliminada",COLOR_ERROR, TEXT_INFO)
+                self.modelo.notificar_observadores(f"Baja de orden",f"Orden eliminada: {id_orden}")
         except Exception as err:
             print("No se pudo eliminar la orden:", err)
+    
     
     def modificar(self):
         try:
@@ -65,8 +73,10 @@ class Controller:
                 self.actualizar_tree()
                 self.vista.limpiar_entrys()
                 self.vista.alerta(f"La orden {id_orden} fue modificada", COLOR_INFO, TEXT_INFO)
+                self.modelo.notificar_observadores("Modificacion de orden", f"Orden modificada: {id_orden}.\nCambios realizados: {nombre}, {telefono}, {tipo}, {cantidad}, {fecha}, {horario}, {precio}")
         except Exception as err:
             print("Ocurrio un errro al modificar la orden", err)
+
 
     def consultar(self):
         try:
@@ -75,10 +85,8 @@ class Controller:
             if nombre == "":
                 messagebox.showerror("Error en la consulta","El campo 'Consulta por cliente' no debe estar vacio.")
                 print("El campo de busqueda se encuentra vacio.")
-                return False
             elif len(resultado) == 0:
                 messagebox.showerror("Error en la consulta",f"No se encontraron ordenes de: {nombre}")
-                return False
             else:
                 self.ordenes = self.vista.tree.get_children()
                 for orden in self.ordenes:
@@ -86,7 +94,6 @@ class Controller:
                 for orden in resultado:
                     self.vista.tree.insert("", 0, text=orden['id'], values=(orden["nombre"], orden["telefono"], orden["tipo"], orden["cantidad"], orden["fecha"], orden["horario"], orden["precio"]))
                     self.vista.alerta(f"Ordenes de {nombre}", COLOR_INFO, TEXT_INFO)
-                    return True
         except Exception as err:
             print("Error al consultar ordenes:",err)
 

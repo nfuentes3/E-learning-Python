@@ -17,6 +17,7 @@ class Controller:
         self.vista.boton_exportar.config(command=lambda:self.exportar())
         self.vista.boton_borrar_todo.config(command=lambda:self.borrar_todo())
         
+
     def alta(self):
         try:
             nombre, telefono, tipo, cantidad, fecha, horario, precio = self.vista.v_nombre.get(),self.vista.v_telefono.get(),self.vista.v_tipo.get(),self.vista.v_cantidad.get(),self.vista.v_fecha.get(),self.vista.v_horario.get(),self.vista.v_precio.get()
@@ -32,6 +33,7 @@ class Controller:
         except Exception as err:
             print("Error al dar de alta en ventana:",err)
     
+    
     def borrar(self):
         try:
             seleccion = self.vista.tree.selection()
@@ -46,6 +48,7 @@ class Controller:
                 self.vista.alerta(f"La orden {id_orden} fue eliminada",COLOR_ERROR, TEXT_INFO)
         except Exception as err:
             print("No se pudo eliminar la orden:", err)
+    
     
     def modificar(self):
         try:
@@ -68,6 +71,7 @@ class Controller:
         except Exception as err:
             print("Ocurrio un errro al modificar la orden", err)
 
+
     def consultar(self):
         try:
             nombre = self.vista.v_consulta.get()
@@ -75,10 +79,8 @@ class Controller:
             if nombre == "":
                 messagebox.showerror("Error en la consulta","El campo 'Consulta por cliente' no debe estar vacio.")
                 print("El campo de busqueda se encuentra vacio.")
-                return False
             elif len(resultado) == 0:
                 messagebox.showerror("Error en la consulta",f"No se encontraron ordenes de: {nombre}")
-                return False
             else:
                 self.ordenes = self.vista.tree.get_children()
                 for orden in self.ordenes:
@@ -86,7 +88,6 @@ class Controller:
                 for orden in resultado:
                     self.vista.tree.insert("", 0, text=orden['id'], values=(orden["nombre"], orden["telefono"], orden["tipo"], orden["cantidad"], orden["fecha"], orden["horario"], orden["precio"]))
                     self.vista.alerta(f"Ordenes de {nombre}", COLOR_INFO, TEXT_INFO)
-                    return True
         except Exception as err:
             print("Error al consultar ordenes:",err)
 

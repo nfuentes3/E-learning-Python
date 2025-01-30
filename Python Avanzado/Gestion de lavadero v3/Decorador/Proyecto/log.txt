@@ -1,0 +1,10 @@
+22/01/2025 15:08:42 - Se ha creado una nueva orden: ('ggggggggg', '123123', 'secado', 2, '21/11', 'Tarde', '44123')
+22/01/2025 15:08:57 - Se ha creado una nueva orden: ('ggggggggg', '123123', 'secado', 2, '21/11', 'Tarde', '44123')
+22/01/2025 15:09:15 - Se ha borrado la orden: 46
+22/01/2025 15:09:28 - Se ha borrado la orden: 43
+22/01/2025 15:10:18 - Se ha modificado la orden: (44, 'cdddd', 1233, 'completo', 2, '09/11', 'Tarde', 3400)
+22/01/2025 15:11:39 - Se ha borrado la orden: 45
+22/01/2025 15:12:32 - Se ha borrado la orden: 42
+22/01/2025 15:12:37 - Se ha borrado la orden: 30
+22/01/2025 15:12:49 - Se ha borrado la orden: 35
+22/01/2025 15:13:15 - Se ha borrado la orden: 41
