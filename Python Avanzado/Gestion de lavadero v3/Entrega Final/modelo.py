@@ -1,14 +1,15 @@
 from peewee import *
 import re
 from datetime import datetime
-from lista_observadores import ObservadorABM
 
-#Genero instancia de la base de datos con Sqlite
-db = SqliteDatabase('ordenes_lavadero.db')
+# Genero instancia de la base de datos con Sqlite
+db = SqliteDatabase("ordenes_lavadero.db")
+
 
 class BaseModel(Model):
     class Meta:
         database = db
+
 
 class Ordenes(BaseModel):
     try:
@@ -19,14 +20,15 @@ class Ordenes(BaseModel):
         fecha = CharField()
         horario = CharField()
         precio = IntegerField()
-        
+
         class Meta:
-            table_name = 'ordenes'
+            table_name = "ordenes"
 
     except DatabaseError as dbe:
         print("Error en base de datos:", dbe)
     except Exception as err:
-            print("Ocurrio un error inesperado:", err)
+        print("Ocurrio un error inesperado:", err)
+
 
 class OperacionesDB:
     def __init__(self):
@@ -42,15 +44,13 @@ class OperacionesDB:
 class OperacionesCRUD:
     def __init__(self):
         self._observadores = []
-    
+
     def agregar_observador(self, observador):
         self._observadores.append(observador)
-        print("Se ha agregado un observador.")
-    
+
     def eliminar_observador(self, observador):
         self._observadores.remove(observador)
-        print("Se ha eliminado un observador.")
-    
+
     def notificar_observadores(self, accion, datos):
         for observador in self._observadores:
             observador.update(accion, datos)
@@ -64,23 +64,23 @@ class OperacionesCRUD:
             self.fecha = fecha
             self.horario = horario
             self.precio = precio
-            
-            if not re.match(r'^\d+$', str(telefono)) or telefono == '':
+
+            if not re.match(r"^\d+$", str(telefono)) or telefono == "":
                 print("El campo 'Telefono' no cumple con las condiciones.")
                 return False
-            elif not re.match(r'^\d+$', str(precio)) or precio == "":
+            elif not re.match(r"^\d+$", str(precio)) or precio == "":
                 print("El campo 'Precio' no cumple con las condiciones.")
                 return False
             else:
                 nueva_orden = Ordenes.create(
-                    nombre = nombre,
-                    telefono = telefono,
-                    tipo = tipo,
-                    cantidad = cantidad,
-                    fecha = fecha,
-                    horario = horario,
-                    precio = precio
-                    )
+                    nombre=nombre,
+                    telefono=telefono,
+                    tipo=tipo,
+                    cantidad=cantidad,
+                    fecha=fecha,
+                    horario=horario,
+                    precio=precio,
+                )
                 return nueva_orden
         except DataError as de:
             print("Error con los datos:", de)
@@ -88,7 +88,6 @@ class OperacionesCRUD:
             print("Error de integridad:", ie)
         except Exception as err:
             print("Ocurrio un error inesperado:", err)
-
 
     def borrar_orden(self, id):
         try:
@@ -103,31 +102,30 @@ class OperacionesCRUD:
         except Exception as err:
             print("Ocurrio un error inesperado:", err)
 
-
-    def modificar_orden(self, id, nombre, telefono, tipo, cantidad, fecha, horario, precio):
+    def modificar_orden(
+        self, id, nombre, telefono, tipo, cantidad, fecha, horario, precio
+    ):
         try:
             orden = Ordenes.get_or_none(Ordenes.id == id)
             if not orden:
                 print(f"El ID {id} no existe en la db")
                 return False
-            
+
             Ordenes.update(
-                nombre = nombre,
-                telefono = telefono,
-                tipo = tipo,
-                cantidad = cantidad,
-                fecha = fecha,
-                horario = horario,
-                precio = precio
+                nombre=nombre,
+                telefono=telefono,
+                tipo=tipo,
+                cantidad=cantidad,
+                fecha=fecha,
+                horario=horario,
+                precio=precio,
             ).where(Ordenes.id == id).execute()
         except Exception as err:
             print("Ocurrio un error inesperado:", err)
 
-
     def consulta_ordenes(self):
         resultado = Ordenes.select().dicts()
         return resultado
-
 
     def consulta_nombre(self, persona):
         try:
@@ -148,7 +146,6 @@ class OperacionesCRUD:
         except Exception as err:
             print("Ocurrio un error inesperado:", err)
 
-
     def borrar_todo(self):
         try:
             Ordenes.delete().execute()
@@ -156,32 +153,35 @@ class OperacionesCRUD:
         except Exception as err:
             print("Ocurrio un error inesperado", err)
 
-
-    def exportar_ordenes(self): #Exporta todas las ordenes de la tabla
+    def exportar_ordenes(self):  # Exporta todas las ordenes de la tabla
         try:
             fecha = datetime.now().strftime("%d-%m-%Y %H_%M_%S")
             archivo = open(f"ordenes_{fecha}.txt", "w")
             ordenes = Ordenes.select().dicts()
             total = 0
             for fila in ordenes:
-                archivo.write(f"{fila['id']},{fila['nombre']},{fila['telefono']},{fila['tipo']},{fila['cantidad']},{fila['fecha']},{fila['horario']},{fila['precio']}\n")
-                total += fila['precio']
+                archivo.write(
+                    f"{fila['id']},{fila['nombre']},{fila['telefono']},{fila['tipo']},{fila['cantidad']},{fila['fecha']},{fila['horario']},{fila['precio']}\n"
+                )
+                total += fila["precio"]
             archivo.write(f"Total a recaudar: $ {total}")
             archivo.close()
-            print(f"Se exporto el archivo: ordenes_{fecha}.txt con todos los registros.")
-            print("***"*10)
+            print(
+                f"Se exporto el archivo: ordenes_{fecha}.txt con todos los registros."
+            )
+            print("***" * 10)
             archivo.close()
         except Exception as err:
             print("Error al exportar las ordenes:", err)
 
 
 if __name__ == "__main__":
-    #op = OperacionesCRUD()
-    #op.alta_orden("ggggggggg","11111","secado",2,"21/11","Tarde","44123")
-    #op.borrar_orden(22)
-    #op.modificar_orden(6, "cdddd",1233,"completo",2,"09/11","Tarde",3400)
-    #op.consulta_ordenes()
-    #op.consulta_nombre("Daiana Patta")
-    #op.borrar_todo()
-    #op.exportar_ordenes()
+    # op = OperacionesCRUD()
+    # op.alta_orden("ggggggggg","11111","secado",2,"21/11","Tarde","44123")
+    # op.borrar_orden(22)
+    # op.modificar_orden(6, "cdddd",1233,"completo",2,"09/11","Tarde",3400)
+    # op.consulta_ordenes()
+    # op.consulta_nombre("Daiana Patta")
+    # op.borrar_todo()
+    # op.exportar_ordenes()
     pass

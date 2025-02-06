@@ -1,9 +1,8 @@
-class Observador:
+class Obervador:
     def update(self):
-        raise NotImplementedError("Error de implementacion del Observador")
+        raise NotImplementedError("Error al implementar el metodo update")
 
-class ObservadorABM(Observador):
+
+class ObservadorABM(Obervador):
     def update(self, accion, datos):
-        print("***"*10)
-        print(f"Acción realizada: {accion}\nDatos recibidos: {datos}")
-        print("***"*10)
+        print(f"Accion realizada: {accion}\nDatos recibidos: {datos}")
